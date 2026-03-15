@@ -16,6 +16,7 @@ import com.shamimzariwala.user.application.command.UpdateUserCommand;
 import com.shamimzariwala.user.application.port.input.CreateUserUseCase;
 import com.shamimzariwala.user.application.port.input.GetUserQuery;
 import com.shamimzariwala.user.application.port.input.UpdateUserUseCase;
+import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
 import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 import com.shamimzariwala.user.domain.model.User;
 
@@ -42,7 +43,8 @@ public class UserController {
 
         CreateUserCommand command = UserMapper.toCommand(request);
 
-        User user = createUserUseCase.createUser(command);
+        User user = createUserUseCase.createUser(command)
+                    .orElseThrow(() -> new UserAlreadyExistsException(command.email()));
 
         return new UserResponse(user.getEmail());
     }
@@ -52,7 +54,8 @@ public class UserController {
 
         UpdateUserCommand command = UserMapper.toCommand(id, request);
 
-        User user = updateUserUseCase.update(command);
+        User user = updateUserUseCase.update(command)
+                    .orElseThrow(() -> new UserAlreadyExistsException(command.email()));
 
         return new UserResponse(user.getEmail());
     }

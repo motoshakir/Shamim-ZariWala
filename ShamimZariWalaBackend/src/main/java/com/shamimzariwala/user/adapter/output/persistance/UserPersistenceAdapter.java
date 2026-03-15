@@ -29,10 +29,11 @@ public class UserPersistenceAdapter implements UserRepository {
     // }
 
     @Override
-    public User save(User user) {
+    public Optional<User> save(User user) {
         UserEntity entity = UserMapper.toEntity(user); // Mapper handles the ID logic
         UserEntity saved = repository.save(entity);
-        return UserMapper.toDomain(saved); // Mapper handles the ID logic
+    
+        return Optional.ofNullable(UserMapper.toDomain(saved));
     }
 
     @Override

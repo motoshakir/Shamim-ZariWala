@@ -1,5 +1,10 @@
 package com.shamimzariwala.user.adapter.input.rest;
 
+import java.util.Collections;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.shamimzariwala.auth.domain.AuthUser;
 import com.shamimzariwala.user.adapter.output.persistance.UserEntity;
 import com.shamimzariwala.user.application.command.CreateUserCommand;
 import com.shamimzariwala.user.application.command.UpdateUserCommand;
@@ -47,5 +52,13 @@ public class UserMapper {
     public static UserResponse toResponse(User user) {
         return new UserResponse(
                 user.getEmail());
+    }
+
+    public static AuthUser toAuthUserDTO(User user) {
+        if (user == null) {
+            return null;
+        }
+       
+        return new AuthUser(user.getEmail(), user.getPassword(), user.getRole());
     }
 }
