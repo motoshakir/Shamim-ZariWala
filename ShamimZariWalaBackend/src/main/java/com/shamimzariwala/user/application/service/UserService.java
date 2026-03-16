@@ -7,13 +7,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.shamimzariwala.user.application.command.CreateUserCommand;
 import com.shamimzariwala.user.application.command.UpdateUserCommand;
 import com.shamimzariwala.user.application.port.input.CreateUserUseCase;
+import com.shamimzariwala.user.application.port.input.DeleteUserUseCase;
 import com.shamimzariwala.user.application.port.input.GetUserQuery;
 import com.shamimzariwala.user.application.port.input.UpdateUserUseCase;
 import com.shamimzariwala.user.application.port.output.UserRepository;
 import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 import com.shamimzariwala.user.domain.model.User;
 
-public class UserService implements CreateUserUseCase,UpdateUserUseCase,GetUserQuery {
+public class UserService implements CreateUserUseCase,UpdateUserUseCase,GetUserQuery,DeleteUserUseCase {
 
     private final UserRepository userRepository;
      private final PasswordEncoder passwordEncoder;
@@ -24,13 +25,13 @@ public class UserService implements CreateUserUseCase,UpdateUserUseCase,GetUserQ
     }
 
     @Override
-    public Optional<User> createUser(CreateUserCommand command) {
+    public User createUser(CreateUserCommand command) {
         User user = new User(command.email(),passwordEncoder.encode(command.password()));
         return userRepository.save(user);
     }
 
     @Override
-    public Optional<User> update(UpdateUserCommand command) {
+    public User update(UpdateUserCommand command) {
         return userRepository.findById(command.userId())
             .map(user -> {
                 if (command.email() != null) user.updateEmail(command.email());
@@ -46,5 +47,10 @@ public class UserService implements CreateUserUseCase,UpdateUserUseCase,GetUserQ
     @Override
     public Optional<User> findUserById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        userRepository.deleteUser(userId);
     }
 }

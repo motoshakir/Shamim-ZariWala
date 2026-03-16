@@ -1,8 +1,5 @@
 package com.shamimzariwala.user.adapter.input.rest;
 
-import java.util.Collections;
-
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.shamimzariwala.auth.domain.AuthUser;
 import com.shamimzariwala.user.adapter.output.persistance.UserEntity;
@@ -17,6 +14,7 @@ public class UserMapper {
                 request.email(),
                 request.password());
     }
+
 
     public static UpdateUserCommand toCommand(Long userId, UpdateUserRequest request) {
         return new UpdateUserCommand(

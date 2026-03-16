@@ -1,8 +1,6 @@
 package com.shamimzariwala.user.adapter.input.rest;
 
-import org.hibernate.sql.Update;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.shamimzariwala.user.application.command.CreateUserCommand;
 import com.shamimzariwala.user.application.command.UpdateUserCommand;
 import com.shamimzariwala.user.application.port.input.CreateUserUseCase;
+import com.shamimzariwala.user.application.port.input.DeleteUserUseCase;
 import com.shamimzariwala.user.application.port.input.GetUserQuery;
 import com.shamimzariwala.user.application.port.input.UpdateUserUseCase;
-import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
 import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 import com.shamimzariwala.user.domain.model.User;
 
@@ -30,12 +28,14 @@ public class UserController {
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetUserQuery getUserQuery;
+    private final DeleteUserUseCase deleteUserUserCase;    
 
     public UserController(CreateUserUseCase createUserUseCase, GetUserQuery getUserQuery,
-            UpdateUserUseCase updateUserUseCase) {
+            UpdateUserUseCase updateUserUseCase,DeleteUserUseCase deleteUserUseCase) {
         this.createUserUseCase = createUserUseCase;
         this.getUserQuery = getUserQuery;
         this.updateUserUseCase = updateUserUseCase;
+        this.deleteUserUserCase = deleteUserUseCase;
     }
 
     @PostMapping("/create")
@@ -43,8 +43,7 @@ public class UserController {
 
         CreateUserCommand command = UserMapper.toCommand(request);
 
-        User user = createUserUseCase.createUser(command)
-                    .orElseThrow(() -> new UserAlreadyExistsException(command.email()));
+        User user = createUserUseCase.createUser(command);
 
         return new UserResponse(user.getEmail());
     }
@@ -54,8 +53,7 @@ public class UserController {
 
         UpdateUserCommand command = UserMapper.toCommand(id, request);
 
-        User user = updateUserUseCase.update(command)
-                    .orElseThrow(() -> new UserAlreadyExistsException(command.email()));
+        User user = updateUserUseCase.update(command);
 
         return new UserResponse(user.getEmail());
     }
@@ -66,5 +64,12 @@ public class UserController {
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         return new UserResponse(user.getEmail());
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+      
+       deleteUserUserCase.deleteUser(id);
+
     }
 }

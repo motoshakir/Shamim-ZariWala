@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.shamimzariwala.user.adapter.input.rest.UserMapper;
 import com.shamimzariwala.user.application.port.output.UserRepository;
+import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
+import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 import com.shamimzariwala.user.domain.model.User;
 
 @Repository
@@ -17,23 +19,20 @@ public class UserPersistenceAdapter implements UserRepository {
         this.repository = repository;
     }
 
-    // @Override
-    // public User save(User user) {
-
-    // UserEntity entity = new UserEntity(null, user.getEmail(),
-    // user.getPassword());
-
-    // UserEntity saved = repository.save(entity);
-
-    // return new User(saved.getEmail(), saved.getPassword());
-    // }
-
     @Override
-    public Optional<User> save(User user) {
-        UserEntity entity = UserMapper.toEntity(user); // Mapper handles the ID logic
+    public User save(User user) {
+
+        repository.findByEmail(user.getEmail())
+                .ifPresent(existingUser -> {
+                    if (!existingUser.getId().equals(user.getId())) {
+                        throw new UserAlreadyExistsException("Email already in use.");
+                    }
+                });
+
+        UserEntity entity = UserMapper.toEntity(user);
         UserEntity saved = repository.save(entity);
-    
-        return Optional.ofNullable(UserMapper.toDomain(saved));
+
+        return UserMapper.toDomain(saved);
     }
 
     @Override
@@ -41,4 +40,23 @@ public class UserPersistenceAdapter implements UserRepository {
         return repository.findById(userId)
                 .map(UserMapper::toDomain);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(UserMapper::toDomain);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        
+        if(!repository.findById(userId)
+                 .isPresent()){
+                throw new UserNotFoundException(userId);
+            }
+        
+        repository.deleteById(userId);
+                
+    }
+
 }
