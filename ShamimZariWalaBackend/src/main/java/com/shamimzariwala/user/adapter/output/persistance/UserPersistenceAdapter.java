@@ -1,7 +1,11 @@
 package com.shamimzariwala.user.adapter.output.persistance;
 
+
 import java.util.Optional;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.shamimzariwala.user.adapter.input.rest.UserMapper;
@@ -48,7 +52,7 @@ public class UserPersistenceAdapter implements UserRepository {
     }
 
     @Override
-    public void deleteUser(Long userId) {
+    public void deleteById(Long userId) {
         
         if(!repository.findById(userId)
                  .isPresent()){
@@ -57,6 +61,12 @@ public class UserPersistenceAdapter implements UserRepository {
         
         repository.deleteById(userId);
                 
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+       return repository.findAll(pageable)
+                .map(UserMapper::toDomain);
     }
 
 }

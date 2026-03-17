@@ -1,5 +1,6 @@
 package com.shamimzariwala.user.adapter.input.rest.handler;
 
+import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
 import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,17 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         problemDetail.setTitle("User Not Found");
+        return problemDetail;
+    }
+
+
+     @ExceptionHandler(UserAlreadyExistsException.class)
+    public ProblemDetail handleUserAlreadyExist(UserAlreadyExistsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, 
+                ex.getMessage()
+        );
+        problemDetail.setTitle("User Already Exists");
         return problemDetail;
     }
 }

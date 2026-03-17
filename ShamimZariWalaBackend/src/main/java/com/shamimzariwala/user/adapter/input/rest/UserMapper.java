@@ -12,7 +12,14 @@ public class UserMapper {
     public static CreateUserCommand toCommand(CreateUserRequest request) {
         return new CreateUserCommand(
                 request.email(),
-                request.password());
+                request.password(),
+                request.firstName(),
+                request.lastName(),
+                request.phoneNumber(),
+                request.avatar(),
+                request.gender(),
+                request.dateOfBirth()
+            );
     }
 
 
@@ -21,35 +28,59 @@ public class UserMapper {
                 userId,
                 request.email(),
                 request.password(),
+                request.firstName(),
+                request.lastName(),
+                request.phoneNumber(),
+                request.avatar(),
+                request.gender(),
+                request.dateOfBirth(),
                 request.role(),
                 request.status());
     }
 
-    public static User toDomain(UserEntity userEntity) {
-        if (userEntity == null)
-            return null;
+   public static User toDomain(UserEntity userEntity) {
+    if (userEntity == null)
+        return null;
 
-        User user = new User(
-                userEntity.getEmail(),
-                userEntity.getPassword());
-
-        user.setId(userEntity.getId());
-
-        return user;
-    }
+    return User.restore(
+        userEntity.getId(),
+        userEntity.getEmail(),
+        userEntity.getPassword(),
+        userEntity.getAvatar(),
+        userEntity.getFirstName(),
+        userEntity.getLastName(),
+        userEntity.getPhoneNumber(),
+        userEntity.getDateOfBirth(),
+        userEntity.getGender(),
+        userEntity.getRole(),
+        userEntity.getStatus()
+    );
+}
 
     public static UserEntity toEntity(User user) {
-        return new UserEntity(
-                user.getId(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getRole(),
-                user.getStatus());
+        if (user == null) return null;
+        
+        return UserEntity.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .avatar(user.getAvatar())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .dateOfBirth(user.getDateOfBirth())
+                .gender(user.getGender())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build(); 
     }
 
     public static UserResponse toResponse(User user) {
         return new UserResponse(
-                user.getEmail());
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName());
     }
 
     public static AuthUser toAuthUserDTO(User user) {

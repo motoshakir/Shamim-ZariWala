@@ -1,5 +1,11 @@
 package com.shamimzariwala.user.adapter.input.rest;
 
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,7 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.shamimzariwala.common.response.PageResponse;
 import com.shamimzariwala.user.application.command.CreateUserCommand;
 import com.shamimzariwala.user.application.command.UpdateUserCommand;
 import com.shamimzariwala.user.application.port.input.CreateUserUseCase;
@@ -28,10 +36,10 @@ public class UserController {
     private final CreateUserUseCase createUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetUserQuery getUserQuery;
-    private final DeleteUserUseCase deleteUserUserCase;    
+    private final DeleteUserUseCase deleteUserUserCase;
 
     public UserController(CreateUserUseCase createUserUseCase, GetUserQuery getUserQuery,
-            UpdateUserUseCase updateUserUseCase,DeleteUserUseCase deleteUserUseCase) {
+            UpdateUserUseCase updateUserUseCase, DeleteUserUseCase deleteUserUseCase) {
         this.createUserUseCase = createUserUseCase;
         this.getUserQuery = getUserQuery;
         this.updateUserUseCase = updateUserUseCase;
@@ -39,37 +47,47 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public UserResponse createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
 
         CreateUserCommand command = UserMapper.toCommand(request);
-
         User user = createUserUseCase.createUser(command);
+        UserResponse userResponse = UserMapper.toResponse(user);
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
+                .buildAndExpand(user.getId()).toUri();
 
-        return new UserResponse(user.getEmail());
+        return ResponseEntity.created(location).body(userResponse);
     }
 
     @PutMapping("/update/{id}")
     public UserResponse updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
 
         UpdateUserCommand command = UserMapper.toCommand(id, request);
-
         User user = updateUserUseCase.update(command);
 
-        return new UserResponse(user.getEmail());
+        return UserMapper.toResponse(user);
     }
 
     @GetMapping("/{id}")
     public UserResponse getUserById(@PathVariable Long id) {
-        User user = getUserQuery.findUserById(id)
+        User user = getUserQuery.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        return new UserResponse(user.getEmail());
+        return UserMapper.toResponse(user);
+    }
+
+    @GetMapping
+    public PageResponse<UserResponse> getUsers(Pageable pageable) {
+
+        Page<User> users = getUserQuery.findAll(pageable);
+
+        Page<UserResponse> response = users.map(UserMapper::toResponse);
+
+        return new PageResponse<>(response);
     }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
-      
-       deleteUserUserCase.deleteUser(id);
 
+        deleteUserUserCase.deleteById(id);
     }
 }

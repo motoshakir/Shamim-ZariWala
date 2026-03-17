@@ -1,8 +1,13 @@
 package com.shamimzariwala.user.application.service;
+
+import java.util.List;
 import java.util.Optional;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shamimzariwala.user.application.command.CreateUserCommand;
 import com.shamimzariwala.user.application.command.UpdateUserCommand;
@@ -11,46 +16,78 @@ import com.shamimzariwala.user.application.port.input.DeleteUserUseCase;
 import com.shamimzariwala.user.application.port.input.GetUserQuery;
 import com.shamimzariwala.user.application.port.input.UpdateUserUseCase;
 import com.shamimzariwala.user.application.port.output.UserRepository;
+import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
 import com.shamimzariwala.user.domain.exception.UserNotFoundException;
 import com.shamimzariwala.user.domain.model.User;
 
-public class UserService implements CreateUserUseCase,UpdateUserUseCase,GetUserQuery,DeleteUserUseCase {
+public class UserService implements CreateUserUseCase, UpdateUserUseCase, GetUserQuery, DeleteUserUseCase {
 
     private final UserRepository userRepository;
-     private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public User createUser(CreateUserCommand command) {
-        User user = new User(command.email(),passwordEncoder.encode(command.password()));
+        userRepository.findByEmail(command.email()).ifPresent(u -> {
+            throw new UserAlreadyExistsException(command.email());
+        });
+        User user = User.create(command.email(), passwordEncoder.encode(command.password()));
+
+        user.updateProfile(command.firstName(), command.lastName(), command.phoneNumber(), command.avatar(),
+                command.gender(),command.dateOfBirth());
+
         return userRepository.save(user);
     }
 
     @Override
+    @Transactional
     public User update(UpdateUserCommand command) {
-        return userRepository.findById(command.userId())
-            .map(user -> {
-                if (command.email() != null) user.updateEmail(command.email());
-                if (command.password() != null) user.changePassword(passwordEncoder.encode(command.password()));
-                if (command.role() != null) user.changeRole(command.role());
-                if (command.status() != null) user.changeStatus(command.status());
-                
-                return userRepository.save(user);
-            })
-            .orElseThrow(() -> new UserNotFoundException(command.userId()));
+
+        User user = userRepository.findById(command.userId())
+                .orElseThrow(() -> new UserNotFoundException(command.userId()));
+
+        if (command.email() != null) {
+            user.updateEmail(command.email());
+        }
+
+        if (command.password() != null && !command.password().isBlank()) {
+            user.changePassword(passwordEncoder.encode(command.password()));
+        }
+
+        user.updateProfile(
+                command.firstName(),
+                command.lastName(),
+                command.phoneNumber(),
+                command.avatar(),
+                command.gender(),
+               command.dateOfBirth());
+
+        if (command.role() != null)
+            user.changeRole(command.role());
+        if (command.status() != null)
+            user.changeStatus(command.status());
+
+       
+
+        return userRepository.save(user);
     }
 
     @Override
-    public Optional<User> findUserById(Long userId) {
+    public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+    public void deleteById(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 }

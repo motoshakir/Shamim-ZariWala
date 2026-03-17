@@ -2,11 +2,17 @@ package com.shamimzariwala.user.adapter.output.persistance;
 
 import com.shamimzariwala.user.domain.model.UserRole;
 import com.shamimzariwala.user.domain.model.UserStatus;
-
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
+@Getter 
+@Builder 
+@NoArgsConstructor(access = AccessLevel.PROTECTED) 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserEntity {
 
     @Id
@@ -19,6 +25,22 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
+    private String avatar;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+
+    private String gender;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
@@ -26,35 +48,4 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
-
-    public UserEntity() {
-    }
-
-    public UserEntity(Long id, String email, String password, UserRole role, UserStatus status) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.status = status;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public String getPassword() {
-        return password;
-    }
 }
