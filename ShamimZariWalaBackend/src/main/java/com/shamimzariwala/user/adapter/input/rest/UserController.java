@@ -3,6 +3,7 @@ package com.shamimzariwala.user.adapter.input.rest;
 import java.net.URI;
 import java.util.List;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -75,8 +76,8 @@ public class UserController {
         return UserMapper.toResponse(user);
     }
 
-    @GetMapping
-    public PageResponse<UserResponse> getUsers(Pageable pageable) {
+    @GetMapping(produces = "application/json")
+    public PageResponse<UserResponse> getUsers(@ParameterObject Pageable pageable) {
 
         Page<User> users = getUserQuery.findAll(pageable);
 
