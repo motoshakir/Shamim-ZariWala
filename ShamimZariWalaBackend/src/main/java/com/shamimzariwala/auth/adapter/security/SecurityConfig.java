@@ -34,13 +34,14 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST,"/users/create","/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers(
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html"
             ).permitAll()
-                .anyRequest().authenticated()             
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
