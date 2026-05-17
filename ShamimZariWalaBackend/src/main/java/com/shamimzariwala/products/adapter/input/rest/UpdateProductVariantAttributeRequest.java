@@ -2,7 +2,7 @@ package com.shamimzariwala.products.adapter.input.rest;
 
 import jakarta.validation.constraints.Size;
 
-public record UpdateProductAttributeRequest(
+public record UpdateProductVariantAttributeRequest(
         @Size(max = 64, message = "Name must be at most 64 characters")
         String name,
 

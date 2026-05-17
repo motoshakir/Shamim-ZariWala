@@ -12,8 +12,8 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.shamimzariwala.products.domain.exception.ProductAlreadyExistsException;
-import com.shamimzariwala.products.domain.exception.ProductAttributeNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductNotFoundException;
+import com.shamimzariwala.products.domain.exception.ProductVariantAttributeNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductVariantNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductVariantSkuAlreadyExistsException;
 import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
@@ -77,10 +77,10 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(ProductAttributeNotFoundException.class)
-    public ProblemDetail handleAttributeNotFound(ProductAttributeNotFoundException ex) {
+    @ExceptionHandler(ProductVariantAttributeNotFoundException.class)
+    public ProblemDetail handleVariantAttributeNotFound(ProductVariantAttributeNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
-        problemDetail.setTitle("Product Attribute Not Found");
+        problemDetail.setTitle("Product Variant Attribute Not Found");
         return problemDetail;
     }
 

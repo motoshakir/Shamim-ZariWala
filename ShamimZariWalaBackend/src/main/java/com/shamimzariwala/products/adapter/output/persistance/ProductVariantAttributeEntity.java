@@ -18,20 +18,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product_attributes",
-        indexes = @Index(name = "idx_product_attributes_product_id", columnList = "product_id"))
+@Table(name = "product_variant_attributes",
+        indexes = @Index(name = "idx_product_variant_attributes_variant_id", columnList = "variant_id"))
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductAttributeEntity {
+public class ProductVariantAttributeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_id", nullable = false)
-    private Long productId;
+    @Column(name = "variant_id", nullable = false,
+            columnDefinition = "BIGINT NOT NULL REFERENCES product_variants(id)")
+    private Long variantId;
 
     @Column(nullable = false)
     private String name;

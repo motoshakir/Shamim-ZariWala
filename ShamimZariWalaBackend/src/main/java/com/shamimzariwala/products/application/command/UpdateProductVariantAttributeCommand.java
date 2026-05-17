@@ -1,7 +1,7 @@
 package com.shamimzariwala.products.application.command;
 
-public record CreateProductAttributeCommand(
-        Long productId,
+public record UpdateProductVariantAttributeCommand(
+        Long attributeId,
         String name,
         String value
 ) {}

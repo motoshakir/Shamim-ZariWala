@@ -33,7 +33,8 @@ public class ProductVariantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id", nullable = false,
+            columnDefinition = "BIGINT NOT NULL REFERENCES products(id)")
     private Long productId;
 
     @Column(nullable = false, unique = true)
