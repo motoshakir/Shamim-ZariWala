@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.shamimzariwala.categories.domain.category.CategoryAlreadyExistsException;
+import com.shamimzariwala.categories.domain.category.CategoryNotFoundException;
+import com.shamimzariwala.categories.domain.subCategory.SubCategoryNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductAlreadyExistsException;
 import com.shamimzariwala.products.domain.exception.ProductNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductVariantAttributeNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductVariantNotFoundException;
 import com.shamimzariwala.products.domain.exception.ProductVariantSkuAlreadyExistsException;
-import com.shamimzariwala.user.domain.exception.UserAlreadyExistsException;
-import com.shamimzariwala.user.domain.exception.UserNotFoundException;
+import com.shamimzariwala.user.domain.address.AddressNotFoundException;
+import com.shamimzariwala.user.domain.user.UserAlreadyExistsException;
+import com.shamimzariwala.user.domain.user.UserNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -81,6 +85,34 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleVariantAttributeNotFound(ProductVariantAttributeNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problemDetail.setTitle("Product Variant Attribute Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AddressNotFoundException.class)
+    public ProblemDetail handleAddressNotFound(AddressNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Address Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ProblemDetail handleCategoryNotFound(CategoryNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Category Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ProblemDetail handleCategoryAlreadyExists(CategoryAlreadyExistsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Category Already Exists");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(SubCategoryNotFoundException.class)
+    public ProblemDetail handleSubCategoryNotFound(SubCategoryNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Sub-Category Not Found");
         return problemDetail;
     }
 
